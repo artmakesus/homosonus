@@ -3,7 +3,7 @@
 // Configuration
 const bSimulate = true;
 const bUseReverb = true;
-const bUseOSC = true;
+const bUseOSC = false;
 const bodySize = 10;
 
 if (bSimulate) {
@@ -12,7 +12,7 @@ if (bSimulate) {
 }
 
 // Sound stuff
-let sounds = new Array(6),
+var sounds = new Array(6),
 	volumes = new Array(6),
 	soundPositions = new Array(6),
 	nextSoundPositions = new Array(6),
@@ -35,7 +35,7 @@ var bodies,
 
 function preload() {
 	if (!bUseOSC) {
-		for (let i in sounds) {
+		for (let i = 0; i < 6; i++) {
 			sounds[i] = loadSound(soundFilenames[i]);
 			if (bUseReverb) {
 				sounds[i].disconnect();
