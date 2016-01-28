@@ -190,11 +190,11 @@ function processData(data) {
 			manipulateSounds(bodyPositions[i], joint);
 		}
 
-		if (!hasBody) {
+		if (!bUseOSC && !hasBody) {
 			for (let i in volumes) {
 				volumes[i] = constrain(volumes[i] - 0.01, 0, 1);
 				if (bUseReverb) {
-					let ampVolume = constrain(volumes[j] * 2, 0, 1); 
+					let ampVolume = constrain(volumes[i] * 2, 0, 1);
 					let fadeTime = 1;
 					let timeFromNow = 0;
 					sounds[i].amp(ampVolume, fadeTime, timeFromNow);
