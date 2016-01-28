@@ -7,29 +7,34 @@ const osc = require('node-osc');
 
 // Configuration
 const bSimulate = true;
+const oscUpdateInterval = 10;
 
 let app = express();
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-let oscClient = new osc.Client('127.0.0.1', 7070);
+let oscClient = new osc.Client('127.0.0.1', 57120);
+let oscCounter = 0;
 
 if (bSimulate) {
 	app.put('/volumes', function(r, w) {
 		try {
-			let volumes = JSON.parse(r.body.volumes);
-			oscClient.send(
-				'/volumes',
-				volumes[0],
-				volumes[1],
-				volumes[2],
-				volumes[3],
-				volumes[4],
-				volumes[5]
-			);
+			oscCounter = (oscCounter + 1) % oscUpdateInterval;
+			if (oscCounter == 0) {
+				let volumes = JSON.parse(r.body.volumes);
+				oscClient.send(
+					'/volumes',
+					volumes[0],
+					volumes[1],
+					volumes[2],
+					volumes[3],
+					volumes[4],
+					volumes[5]
+				);
+				console.log(volumes);
+			}
 			w.sendStatus(200);
-			console.log(volumes);
 		} catch (error) {
 			w.sendStatus(500);
 			console.log(error);

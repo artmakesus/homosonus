@@ -206,6 +206,8 @@ function processData(data) {
 
 		requestAnimationFrame(fetchData);
 	}
+
+	sendOSCData();
 }
 
 function manipulateSounds(bodyPosition, joint) {
@@ -229,16 +231,16 @@ function manipulateSounds(bodyPosition, joint) {
 		}
 
 	}
+}
 
-	if (bUseOSC) {
-		$.ajax({
-			url: '/volumes',
-			method: 'PUT',
-			data: {
-				volumes: JSON.stringify(volumes),
-			},
-		});
-	}
+function sendOSCData() {
+	$.ajax({
+		url: '/volumes',
+		method: 'PUT',
+		data: {
+			volumes: JSON.stringify(volumes),
+		},
+	});
 }
 
 function mouseMoved() {
