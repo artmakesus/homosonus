@@ -3,7 +3,7 @@
 // Configuration
 const bSimulate = true;
 const bUseReverb = true;
-
+const bUseOSC = true;
 const bodySize = 10;
 
 if (bSimulate) {
@@ -12,7 +12,7 @@ if (bSimulate) {
 }
 
 // Sound stuff
-var sounds = new Array(6),
+let sounds = new Array(6),
 	volumes = new Array(6),
 	soundPositions = new Array(6),
 	nextSoundPositions = new Array(6),
@@ -34,12 +34,14 @@ var bodies,
 	bodyPositions = new Array(6);
 
 function preload() {
-	for (let i = 0; i < 6; i++) {
-		sounds[i] = loadSound(soundFilenames[i]);
-		if (bUseReverb) {
-			sounds[i].disconnect();
-			reverbs[i] = new p5.Reverb();
-			reverbs[i].process(sounds[i], 1, 3);
+	if (!bUseOSC) {
+		for (let i in sounds) {
+			sounds[i] = loadSound(soundFilenames[i]);
+			if (bUseReverb) {
+				sounds[i].disconnect();
+				reverbs[i] = new p5.Reverb();
+				reverbs[i].process(sounds[i], 1, 3);
+			}
 		}
 	}
 }
@@ -151,7 +153,7 @@ function fetchData() {
 	}).done(function(data) {
 		processData(data);
 	}).fail(function(response) {
-		setTimeout(fetchData, 1000 / frameRate());
+		requestAnimationFrame(fetchData);
 	});
 }
 
@@ -164,7 +166,7 @@ function processData(data) {
 	// Manipulate sounds if there are bodies
 	if (bSimulate) {
 		manipulateSounds({ x: dummyX, y: dummyY });
-		setTimeout(processData, 1000 / frameRate);
+		requestAnimationFrame(processData);
 	} else {
 		let hasBody = false;
 
@@ -202,7 +204,7 @@ function processData(data) {
 			}
 		}
 
-		setTimeout(fetchData, 1000 / frameRate());
+		requestAnimationFrame(fetchData);
 	}
 }
 
@@ -210,23 +212,32 @@ function manipulateSounds(bodyPosition, joint) {
 	for (let i in soundPositions) {
 		// Calculate distance between sound and body
 		let distance = dist(soundPositions[i].x, soundPositions[i].y, bodyPosition.x, bodyPosition.y);
-
 		let tmpVolume = constrain(1 - Math.cbrt(distance) * 0.125, 0, 1) * 2;
+
 		if (tmpVolume > volumes[i]) {
 			volumes[i] = tmpVolume;
-			if (bUseReverb) {
-				let ampVolume = constrain(volumes[i] * 2, 0, 1); 
-				//let fadeTime = 1;
-				//let timeFromNow = 0;
-				sounds[i].amp(ampVolume);
-			} else {
-				sounds[i].setVolume(volumes[i]);
+			if (!bUseOSC) {
+				if (bUseReverb) {
+					let ampVolume = constrain(volumes[i] * 2, 0, 1); 
+					//let fadeTime = 1;
+					//let timeFromNow = 0;
+					sounds[i].amp(ampVolume);
+				} else {
+					sounds[i].setVolume(volumes[i]);
+				}
 			}
 		}
 
-		if (joint) {
-			sounds[i].pan(-joint.cameraX);
-		}
+	}
+
+	if (bUseOSC) {
+		$.ajax({
+			url: '/volumes',
+			method: 'PUT',
+			data: {
+				volumes: JSON.stringify(volumes),
+			},
+		});
 	}
 }
 

@@ -1,14 +1,39 @@
 'use strict';
 
+// Modules
+const express = require('express');
+const bodyParser = require('body-parser');
+const osc = require('node-osc');
+
+// Configuration
 const bSimulate = true;
 
-if (bSimulate) {
-	const express = require('express');
-	let app = express();
+let app = express();
+app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-	app.use(express.static('public'));
-	app.get('/data', function(r, w) {
-		w.send(bodies);
+let oscClient = new osc.Client('127.0.0.1', 7070);
+
+if (bSimulate) {
+	app.put('/volumes', function(r, w) {
+		try {
+			let volumes = JSON.parse(r.body.volumes);
+			oscClient.send(
+				'/volumes',
+				volumes[0],
+				volumes[1],
+				volumes[2],
+				volumes[3],
+				volumes[4],
+				volumes[5]
+			);
+			w.sendStatus(200);
+			console.log(volumes);
+		} catch (error) {
+			w.sendStatus(500);
+			console.log(error);
+		}
 	});
 
 	let server = app.listen(8080, function() {

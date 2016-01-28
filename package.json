@@ -4,14 +4,16 @@
   "description": "Homosonus is an art installation where people can move around and manipulate sounds in the space.",
   "main": "main.js",
   "scripts": {
-  	"start": "node main.js",
+    "start": "node main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jacky Boen",
   "license": "GPL-2.0",
   "dependencies": {
+    "body-parser": "^1.14.2",
     "express": "^4.13.3",
     "kinect2": "^0.1.1",
+    "node-osc": "^1.2.0",
     "react": "^0.14.0",
     "react-dom": "^0.14.0"
   }
